@@ -108,9 +108,22 @@ contract DSCEngine is ReentrancyGuard {
         i_dsc = DecentralizedStableCoin(dscAddress);
     }
 
-    ////////////////////EXTERNAL FUNCTIONS////////////////////
+    ////////////////////EXTERNAL/PUBLIC FUNCTIONS////////////////////
 
-    function depositCollateralAndMintDsc() external {}
+    /*
+     *  @param tokenCollateralAddress - The address of the token that will be used as collateral. (WETH, WBTC)
+     *  @param amountCollateral - The amount of collateral that will be deposited.
+     *  @param amountDscToMint - The amount of DSC that will be minted.
+     *  @notice - This function combines the depositCollateral and mintDsc functions.
+     */
+    function depositCollateralAndMintDsc(
+        address tokenCollateralAddress,
+        uint256 amountCollateral,
+        uint256 amountDscToMint
+    ) external {
+        depositCollateral(tokenCollateralAddress, amountCollateral);
+        mintDsc(amountDscToMint);
+    }
 
     /*
     @notice - Follow CEI pattern. (Checks, Effects, Interactions)
@@ -118,7 +131,7 @@ contract DSCEngine is ReentrancyGuard {
     @param amountCollateral - The amount of collateral that will be deposited.
     */
     function depositCollateral(address tokenCollateralAddress, uint256 amountCollateral)
-        external
+        public
         moreThanZero(amountCollateral)
         isAllowedToken(tokenCollateralAddress)
         nonReentrant
@@ -141,7 +154,7 @@ contract DSCEngine is ReentrancyGuard {
     @param amountDscToMint - The amount of DSC that will be minted.
     @notice - They Should have more collateral than the minimum threshold.
     */
-    function mintDsc(uint256 amountDscToMint) external moreThanZero(amountDscToMint) nonReentrant {
+    function mintDsc(uint256 amountDscToMint) public moreThanZero(amountDscToMint) nonReentrant {
         s_DSCMinted[msg.sender] += amountDscToMint;
         // If they minted more than the collateral value, revert.
         _revertHealthFactorIsBroken(msg.sender);

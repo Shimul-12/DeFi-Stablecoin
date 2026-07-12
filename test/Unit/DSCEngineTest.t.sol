@@ -21,7 +21,7 @@ contract DSCEngineTest is Test {
     function setUp() public {
         deployer = new DeployDSC();
         (dsc, engine, config) = deployer.run();
-        (wethUsdPriceFeed, , weth, , ) = config.activeNetworkConfig();
+        (wethUsdPriceFeed,, weth,,) = config.activeNetworkConfig();
         ERC20Mock(weth).mint(USER, 100e18);
     }
 
