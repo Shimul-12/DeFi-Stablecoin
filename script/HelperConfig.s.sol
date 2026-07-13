@@ -2,8 +2,8 @@
 pragma solidity ^0.8.19;
 
 import {Script} from "forge-std/Script.sol";
-import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";
-import {ERC20Mock} from "../test/mocks/ERC20Mock.sol";
+import {MockV3Aggregator} from "../test/Mocks/MockV3Aggregator.sol";
+import {ERC20Mock} from "../test/Mocks/ERC20Mock.sol";
 
 contract HelperConfig is Script {
     NetworkConfig public activeNetworkConfig;
