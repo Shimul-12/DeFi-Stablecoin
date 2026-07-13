@@ -76,6 +76,8 @@ contract DSCEngine is ReentrancyGuard {
     ///////////////////////////////EVENTS/////////////////////////////
 
     event CollateralDeposited(address indexed user, address indexed token, uint256 amount);
+    event CollateralRedeemed(address indexed user, address indexed token, uint256 amount);
+    event DscBurned(address indexed user, uint256 amountDscBurned);
 
     ///////////////////////MODIFIERS//////////////////////////
 
@@ -145,9 +147,40 @@ contract DSCEngine is ReentrancyGuard {
         }
     }
 
-    function redeemCollateralForDsc() external {}
+    /*
+    @notice - This function combines the redeemCollateral and burnDsc functions.
+    @param tokenCollateraladdress - The address of the token that will be used as collateral. (WETH, WBTC)
+    @param amountCollateraltoRedeem - The amount of collateral that will be redeemed.
+    @param amountDscToBurn - The amount of DSC that will be burned.
+    @notice - RedeemCollateral already checks the health factor.
+    */
+    function redeemCollateralForDsc(
+        address tokenCollateraladdress,
+        uint256 amountCollateraltoRedeem,
+        uint256 amountDscToBurn
+    ) external {
+        burnDsc(amountDscToBurn);
+        redeemCollateral(tokenCollateraladdress, amountCollateraltoRedeem);
+        // RedeemCollateral already checks the health factor.
+    }
 
-    function redeemCollateral() external {}
+    /*
+    1. Check health factor is above 1 after collateral is redeemed.
+    2. DRY - Don't repear yourself.
+    */
+    function redeemCollateral(address tokenCollateralAddress, uint256 amountCollateral)
+        public
+        moreThanZero(amountCollateral)
+        nonReentrant
+    {
+        s_collateralDeposited[msg.sender][tokenCollateralAddress] -= amountCollateral;
+        _revertHealthFactorIsBroken(msg.sender);
+        emit CollateralRedeemed(msg.sender, tokenCollateralAddress, amountCollateral);
+        bool success = IERC20(tokenCollateralAddress).transfer(msg.sender, amountCollateral);
+        if (!success) {
+            revert DSCEngine__TransferFailed();
+        }
+    }
 
     /*
     @notice - Follow CEI pattern. (Checks, Effects, Interactions)
@@ -164,7 +197,14 @@ contract DSCEngine is ReentrancyGuard {
         }
     }
 
-    function burnDsc() external {}
+    function burnDsc(uint256 amountDscToBurn) public moreThanZero(amountDscToBurn) nonReentrant {
+        s_DSCMinted[msg.sender] -= amountDscToBurn;
+        bool success = i_dsc.transferFrom(msg.sender, address(this), amountDscToBurn);
+        if (!success) {
+            revert DSCEngine__TransferFailed();
+        }
+        i_dsc.burn(amountDscToBurn);
+    }
 
     function liquidate() external {}
 
