@@ -15,14 +15,32 @@ contract DSCEngineTest is Test {
     HelperConfig config;
     address wethUsdPriceFeed;
     address weth;
+    address wbtc;
 
     address public USER = makeAddr("user");
 
     function setUp() public {
         deployer = new DeployDSC();
         (dsc, engine, config) = deployer.run();
-        (wethUsdPriceFeed,, weth,,) = config.activeNetworkConfig();
+        (wethUsdPriceFeed, , weth, wbtc, ) = config.activeNetworkConfig();
         ERC20Mock(weth).mint(USER, 100e18);
+    }
+
+    ///////////////////CONSTRUCTOR TESTS////////////////////
+
+    address[] tokenAddresses;
+    address[] priceFeedAddresses;
+
+    function testRevertsIfTokenLengthDoesntMatchPriceFeeds() public {
+        tokenAddresses = [weth, wbtc];
+        priceFeedAddresses = [wethUsdPriceFeed];
+
+        vm.expectRevert(
+            DSCEngine
+                .DSCEngine__TokenAddressAndPriceFeedAddressMustBeSameLength
+                .selector
+        );
+        new DSCEngine(tokenAddresses, priceFeedAddresses, address(dsc));
     }
 
     /////////////////// PRICE TESTS //////////////////////
