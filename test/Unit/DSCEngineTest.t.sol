@@ -50,6 +50,13 @@ contract DSCEngineTest is Test {
         assertEq(usdValue, amount * 2000);
     }
 
+    function testGetTokenAmountFromUsd() public {
+        // If we want $100 of WETH @ $2000/WETH, that would be 0.05 WETH
+        uint256 expectedWeth = 0.05 ether;
+        uint256 amountWeth = engine.getTokenAmountFromUsd(weth, 100 ether);
+        assertEq(amountWeth, expectedWeth);
+    }
+
     /////////////////// DEPOSIT COLLATERAL TESTS //////////////////////
     function testDepositCollateral() public {
         uint256 amount = 15e18;
