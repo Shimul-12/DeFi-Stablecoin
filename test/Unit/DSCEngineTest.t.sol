@@ -82,4 +82,19 @@ contract DSCEngineTest is Test {
         engine.depositCollateral(address(ranToken), 10 ether);
         vm.stopPrank();
     }
+
+    modifier depositedCollateral() {
+        vm.startPrank(USER);
+        ERC20Mock(weth).approve(address(engine), 15e18);
+        engine.depositCollateral(weth, 15e18);
+        vm.stopPrank();
+        _;
+    }
+
+    function testCanDepositCollateralAndGetAccountInformation() public depositedCollateral {
+        (uint256 collateralValueInUSD, uint256 totalDSCMinted) = engine.GetAccountInformation(USER);
+
+        assertEq(collateralValueInUSD, 15e18 * 2000);
+        assertEq(totalDSCMinted, 0);
+    }
 }

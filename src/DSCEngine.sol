@@ -339,4 +339,12 @@ contract DSCEngine is ReentrancyGuard {
         // Chainlink price feeds have 8 decimals, so we need to adjust for that.
         return (uint256(price) * amount) / 1e8;
     }
+
+    function GetAccountInformation(address User)
+        external
+        view
+        returns (uint256 totalCollateralValueInUSD, uint256 totalDSCMinted)
+    {
+        (totalCollateralValueInUSD, totalDSCMinted) = _getAccountInformation(User);
+    }
 }
