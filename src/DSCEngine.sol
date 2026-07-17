@@ -182,7 +182,6 @@ contract DSCEngine is ReentrancyGuard {
     }
 
     /*
-    @notice - Follow CEI pattern. (Checks, Effects, Interactions)
     @param amountDscToMint - The amount of DSC that will be minted.
     @notice - They Should have more collateral than the minimum threshold.
     */
@@ -230,7 +229,7 @@ contract DSCEngine is ReentrancyGuard {
         /*
          2.We burn their DSC tokens (debt) and take their collateral.
          * User that is being liquidated : $140 ETH, $100 DSC
-         * debttoCover = $100. And 10% LIQUIDATION_BONUS
+         * debtToCover = $100. And 10% LIQUIDATION_BONUS
          * $100 DSC = ?? ETH. ---> 0.05
          * That means we're giving $110 of WETH for 100 DSC.
         */
