@@ -182,6 +182,7 @@ contract DSCEngine is ReentrancyGuard {
     }
 
     /*
+    @notice - Follow CEI pattern. (Checks, Effects, Interactions)
     @param amountDscToMint - The amount of DSC that will be minted.
     @notice - They Should have more collateral than the minimum threshold.
     */
