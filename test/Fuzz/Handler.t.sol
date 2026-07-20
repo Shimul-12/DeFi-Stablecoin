@@ -28,7 +28,7 @@ contract Handler is Test {
         wbtc = ERC20Mock(CollateralToken[1]);
     }
 
-    // Redeem Collateral flowchart -->
+    // Deposit Collateral Flowchart:-
 
     function depositCollateral(uint256 CollateralSeed, uint256 amountCollateral) public {
         ERC20Mock Collateral = _getCollateralFromSeed(CollateralSeed);
@@ -43,6 +43,36 @@ contract Handler is Test {
         Engine.depositCollateral(address(Collateral), amountCollateral);
         vm.stopPrank();
     }
+
+    function mintDSC(uint256 Amount) public {
+        (uint256 totalDscMinted, uint256 collateralvalueInUSD) = Engine.GetAccountInformation(msg.sender);
+        int256 maxDscToMint = (int256(collateralvalueInUSD) / 2 - int256(totalDscMinted));
+
+        if (maxDscToMint < 0) {
+            return;
+        }
+        Amount = bound(Amount, 0, uint256(maxDscToMint));
+        if (maxDscToMint == 0) {
+            return;
+        }
+        vm.startPrank(msg.sender);
+        Engine.mintDsc(Amount);
+        vm.stopPrank();
+    }
+
+    // Redeem Collateral Flowchart:-
+
+    function redeemCollateral(uint256 collateralSeed, uint256 amountCollateral) public {
+        ERC20Mock collateral = _getCollateralFromSeed(collateralSeed);
+        uint256 maxCollateralToRedeem = Engine.getCollateralBalanceOfUser(address(collateral), msg.sender);
+        amountCollateral = bound(amountCollateral, 0, maxCollateralToRedeem);
+        if (amountCollateral == 0) {
+            return;
+        }
+        Engine.redeemCollateral(address(collateral), amountCollateral);
+    }
+
+    // Helper Function :- This will help to deposit only the valid collateral addresses instead of any random collateral address.
 
     function _getCollateralFromSeed(uint256 CollateralSeed) private view returns (ERC20Mock) {
         if (CollateralSeed % 2 == 0) {
