@@ -17,6 +17,7 @@ import {DecentralizedStableCoin} from "../../src/DecentralizedStableCoin.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {console} from "forge-std/console.sol";
+import {Handler} from "./Handler.t.sol";
 
 contract InvariantsTest is StdInvariant, Test {
     DeployDSC Deployer;
@@ -25,13 +26,16 @@ contract InvariantsTest is StdInvariant, Test {
     HelperConfig Config;
     address weth;
     address wbtc;
+    Handler handler;
 
     function setUp() external {
         // Deploy the contracts first.
         Deployer = new DeployDSC();
         (DSC, Engine, Config) = Deployer.run();
         (,, weth, wbtc,) = Config.activeNetworkConfig();
-        targetContract(address(Engine));
+        // targetContract(address(Engine));
+        handler = new Handler(Engine, DSC);
+        targetContract(address(handler));
     }
 
     function invariant_protocolMustHaveMoreCollateralThanTotalSupply() public view {
