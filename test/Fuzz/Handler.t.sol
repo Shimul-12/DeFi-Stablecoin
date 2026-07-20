@@ -44,8 +44,6 @@ contract Handler is Test {
         vm.stopPrank();
     }
 
-    // Helper Function :- This will help to deposit only the valid collateral addresses instead of any random collateral address.
-
     function _getCollateralFromSeed(uint256 CollateralSeed) private view returns (ERC20Mock) {
         if (CollateralSeed % 2 == 0) {
             return weth;
