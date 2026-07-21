@@ -7,7 +7,7 @@
 // // 1. The total supply of DSC is always less than the total collateral value.
 // // 2. Getter view function should always revert for an address that doesn't have any collateral or DSC. <-- Evergreen invariant.
 
-// pragma solidity ^0.8.20;
+pragma solidity ^0.8.20;
 
 // import {Test} from "forge-std/Test.sol";
 // import {StdInvariant} from "forge-std/StdInvariant.sol";

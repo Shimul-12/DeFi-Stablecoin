@@ -19,6 +19,10 @@ contract Handler is Test {
 
     uint256 MAX_DEPOSIT_SIZE = type(uint96).max;
 
+    uint256 public timesMintIsCalled;
+
+    address[] public UsersWhichHaveDepositedTheCollateral;
+
     constructor(DSCEngine _Engine, DecentralizedStableCoin _DSC) {
         Engine = _Engine;
         DSC = _DSC;
@@ -42,22 +46,29 @@ contract Handler is Test {
 
         Engine.depositCollateral(address(Collateral), amountCollateral);
         vm.stopPrank();
+
+        UsersWhichHaveDepositedTheCollateral.push(msg.sender);
     }
 
-    function mintDSC(uint256 Amount) public {
-        (uint256 totalDscMinted, uint256 collateralvalueInUSD) = Engine.GetAccountInformation(msg.sender);
-        int256 maxDscToMint = (int256(collateralvalueInUSD) / 2 - int256(totalDscMinted));
+    // MintDSC will only be called when a user has already deposited some collateral in the protocol. Otherwise it won't get called.
+    // Because invariant will be called with tons of random addresses, but most of them will not have deposited the Collateral. That's why MintDSC won't get Called.
 
-        if (maxDscToMint < 0) {
+    function mintDSC(uint256 Amount, uint256 addressSeed) public {
+        if (UsersWhichHaveDepositedTheCollateral.length == 0) {
             return;
         }
-        Amount = bound(Amount, 0, uint256(maxDscToMint));
-        if (maxDscToMint == 0) {
+        address Sender = UsersWhichHaveDepositedTheCollateral[addressSeed % UsersWhichHaveDepositedTheCollateral.length];
+        (uint256 totalCollateralValueInUSD, uint256 totalDSCMinted) = Engine.GetAccountInformation(Sender);
+        int256 maxDscToMint = (int256(totalCollateralValueInUSD) / 2) - int256(totalDSCMinted);
+
+        if (maxDscToMint <= 0) {
             return;
         }
-        vm.startPrank(msg.sender);
+        Amount = bound(Amount, 1, uint256(maxDscToMint));
+        vm.startPrank(Sender);
         Engine.mintDsc(Amount);
         vm.stopPrank();
+        timesMintIsCalled++;
     }
 
     // Redeem Collateral Flowchart:-
