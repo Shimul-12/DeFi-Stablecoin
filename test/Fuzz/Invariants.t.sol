@@ -32,16 +32,13 @@ contract InvariantsTest is StdInvariant, Test {
         // Deploy the contracts first.
         Deployer = new DeployDSC();
         (DSC, Engine, Config) = Deployer.run();
-        (, , weth, wbtc, ) = Config.activeNetworkConfig();
+        (,, weth, wbtc,) = Config.activeNetworkConfig();
         // targetContract(address(Engine));
         handler = new Handler(Engine, DSC);
         targetContract(address(handler));
     }
 
-    function invariant_protocolMustHaveMoreCollateralThanTotalSupply()
-        public
-        view
-    {
+    function invariant_protocolMustHaveMoreCollateralThanTotalSupply() public view {
         // 1. Get the Total DSC supply.
         // 2. Get the total WETH in the protocol. (In USD)
         // 3. Get the total WBTC in the protocol. (In USD)
