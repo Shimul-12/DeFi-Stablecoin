@@ -10,6 +10,7 @@ import {Test} from "forge-std/Test.sol";
 import {DSCEngine} from "../../src/DSCEngine.sol";
 import {DecentralizedStableCoin} from "../../src/DecentralizedStableCoin.sol";
 import {ERC20Mock} from "../Mocks/ERC20Mock.sol";
+import {MockV3Aggregator} from "../Mocks/MockV3Aggregator.sol";
 
 contract Handler is Test {
     DSCEngine Engine;
@@ -23,6 +24,8 @@ contract Handler is Test {
 
     address[] public UsersWhichHaveDepositedTheCollateral;
 
+    MockV3Aggregator public EthUSDPriceFeed;
+
     constructor(DSCEngine _Engine, DecentralizedStableCoin _DSC) {
         Engine = _Engine;
         DSC = _DSC;
@@ -30,6 +33,8 @@ contract Handler is Test {
         address[] memory CollateralToken = Engine.getCollateralTokens();
         weth = ERC20Mock(CollateralToken[0]);
         wbtc = ERC20Mock(CollateralToken[1]);
+
+        EthUSDPriceFeed = MockV3Aggregator(Engine.getCollateralTokenPriceFeed(address(weth)));
     }
 
     // Deposit Collateral Flowchart:-
@@ -82,6 +87,13 @@ contract Handler is Test {
         }
         Engine.redeemCollateral(address(collateral), amountCollateral);
     }
+
+    // THIS BREAKS OUR INVARIANT SUITE!!!
+
+    // function updateCollateralPrice(uint96 newPrice) public {
+    //     int256 NewPrice = int256(uint256(newPrice));
+    //     EthUSDPriceFeed.updateAnswer(NewPrice);
+    // }
 
     // Helper Function :- This will help to deposit only the valid collateral addresses instead of any random collateral address.
 
