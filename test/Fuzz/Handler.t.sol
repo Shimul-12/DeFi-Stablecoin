@@ -34,17 +34,12 @@ contract Handler is Test {
         weth = ERC20Mock(CollateralToken[0]);
         wbtc = ERC20Mock(CollateralToken[1]);
 
-        EthUSDPriceFeed = MockV3Aggregator(
-            Engine.getCollateralTokenPriceFeed(address(weth))
-        );
+        EthUSDPriceFeed = MockV3Aggregator(Engine.getCollateralTokenPriceFeed(address(weth)));
     }
 
     // Deposit Collateral Flowchart:-
 
-    function depositCollateral(
-        uint256 CollateralSeed,
-        uint256 amountCollateral
-    ) public {
+    function depositCollateral(uint256 CollateralSeed, uint256 amountCollateral) public {
         ERC20Mock Collateral = _getCollateralFromSeed(CollateralSeed);
         amountCollateral = bound(amountCollateral, 1, MAX_DEPOSIT_SIZE);
 
@@ -67,13 +62,9 @@ contract Handler is Test {
         if (UsersWhichHaveDepositedTheCollateral.length == 0) {
             return;
         }
-        address Sender = UsersWhichHaveDepositedTheCollateral[
-            addressSeed % UsersWhichHaveDepositedTheCollateral.length
-        ];
-        (uint256 totalCollateralValueInUSD, uint256 totalDSCMinted) = Engine
-            .GetAccountInformation(Sender);
-        int256 maxDscToMint = (int256(totalCollateralValueInUSD) / 2) -
-            int256(totalDSCMinted);
+        address Sender = UsersWhichHaveDepositedTheCollateral[addressSeed % UsersWhichHaveDepositedTheCollateral.length];
+        (uint256 totalCollateralValueInUSD, uint256 totalDSCMinted) = Engine.GetAccountInformation(Sender);
+        int256 maxDscToMint = (int256(totalCollateralValueInUSD) / 2) - int256(totalDSCMinted);
 
         if (maxDscToMint <= 0) {
             return;
@@ -87,15 +78,9 @@ contract Handler is Test {
 
     // Redeem Collateral Flowchart:-
 
-    function redeemCollateral(
-        uint256 collateralSeed,
-        uint256 amountCollateral
-    ) public {
+    function redeemCollateral(uint256 collateralSeed, uint256 amountCollateral) public {
         ERC20Mock collateral = _getCollateralFromSeed(collateralSeed);
-        uint256 maxCollateralToRedeem = Engine.getCollateralBalanceOfUser(
-            address(collateral),
-            msg.sender
-        );
+        uint256 maxCollateralToRedeem = Engine.getCollateralBalanceOfUser(address(collateral), msg.sender);
         amountCollateral = bound(amountCollateral, 0, maxCollateralToRedeem);
         if (amountCollateral == 0) {
             return;
@@ -111,9 +96,7 @@ contract Handler is Test {
     // }
 
     // Helper Function :- This will help to deposit only the valid collateral addresses instead of any random collateral address.
-    function _getCollateralFromSeed(
-        uint256 CollateralSeed
-    ) private view returns (ERC20Mock) {
+    function _getCollateralFromSeed(uint256 CollateralSeed) private view returns (ERC20Mock) {
         if (CollateralSeed % 2 == 0) {
             return weth;
         }
